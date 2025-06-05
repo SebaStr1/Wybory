@@ -1,4 +1,3 @@
-
 version: '3.8'
 
 services:
@@ -22,6 +21,19 @@ services:
       - mysql_data:/var/lib/mysql
     ports:
       - "3306:3306"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql-db
+      PMA_USER: user
+      PMA_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: rootpass
+    depends_on:
+      - mysql
 
 volumes:
   mysql_data:
