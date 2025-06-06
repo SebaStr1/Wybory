@@ -7,20 +7,24 @@ services:
       - "8080:80"
     depends_on:
       - mysql
+    networks:
+      - backend
 
   mysql:
     image: mysql:8.0
     container_name: mysql-db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: moja_baza
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
-    ports:
-      - "3306:3306"
+    networks:
+      - backend
+    expose:
+      - "3306"
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -29,11 +33,16 @@ services:
       - "8081:80"
     environment:
       PMA_HOST: mysql-db
-      PMA_USER: user
-      PMA_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: rootpass
+      PMA_USER: ${MYSQL_USER}
+      PMA_PASSWORD: ${MYSQL_PASSWORD}
     depends_on:
       - mysql
+    networks:
+      - backend
 
 volumes:
   mysql_data:
+
+networks:
+  backend:
+    driver: bridge
