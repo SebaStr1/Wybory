@@ -1,4 +1,8 @@
 <?php
+// Include security headers BEFORE any other output
+include 'security_headers.php';
+setPublicPageHeaders();
+
 // Bezpieczne uwzględnienie połączenia z bazą danych
 include 'db.php';
 
@@ -64,7 +68,7 @@ try {
             <li>Lub uruchom następujące polecenie w kontenerze MySQL:</li>
         </ol>
         <code style="background: #f1f1f1; padding: 10px; display: block; margin: 10px 0;">
-            docker exec -i mysql-db mysql -u user -ppassword moja_baza < wybory_portal.sql
+            docker exec -i mysql-db mysql -u user -ppassword moja_baza &lt; wybory_portal.sql
         </code>
     </div>
 <?php else: ?>
