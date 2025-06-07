@@ -5,6 +5,10 @@ if (!isset($_SESSION['user_id']) || !$_SESSION['is_admin']) {
     exit;
 }
 include 'db.php';
+include 'csrf_protection.php'; // ✅ Dodane
+
+// ✅ Sprawdzenie CSRF dla wszystkich POST requestów
+checkCSRFOrDie();
 
 // Dodawanie nowych wyborów
 if (isset($_POST['create_election'])) {
@@ -47,6 +51,7 @@ $elections = $conn->query("SELECT * FROM elections ORDER BY id DESC");
 
     <h3>Dodaj nowe wybory</h3>
     <form method="POST">
+        <?= getCSRFInput() ?> <!-- ✅ Token CSRF -->
         <label>Nazwa wyborów:</label>
         <input type="text" name="election_name" required>
 
@@ -61,6 +66,7 @@ $elections = $conn->query("SELECT * FROM elections ORDER BY id DESC");
 
     <h3>Dodaj kandydata</h3>
     <form method="POST">
+        <?= getCSRFInput() ?> <!-- ✅ Token CSRF -->
         <label>Wybory:</label>
         <select name="election_id" required>
             <option value="">-- wybierz wybory --</option>

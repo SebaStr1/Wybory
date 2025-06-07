@@ -1,5 +1,6 @@
 <?php
 include 'db.php';
+include 'csrf_protection.php'; // ✅ Dodane
 
 function isValidPESEL($pesel) {
     if (!preg_match('/^[0-9]{11}$/', $pesel)) {
@@ -15,6 +16,9 @@ function isValidPESEL($pesel) {
 
     return $checkDigit == intval($pesel[10]);
 }
+
+// ✅ Sprawdzenie CSRF dla POST requestów
+checkCSRFOrDie();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = $_POST["name"];
@@ -61,6 +65,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 <h2>Rejestracja</h2>
 <form method="POST">
+    <?= getCSRFInput() ?> <!-- ✅ Token CSRF -->
     <input type="text" name="name" placeholder="Imię" required><br>
     <input type="text" name="surname" placeholder="Nazwisko" required><br>
     <input type="text" name="pesel" placeholder="PESEL" required><br>
@@ -69,9 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <button type="submit">Zarejestruj</button>
 </form>
 
-
 <p>Masz już konto? <a href="login.php"><button>Mam konto – Zaloguj się</button></a></p>
 
 </body>
 </html>
-

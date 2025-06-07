@@ -1,6 +1,10 @@
 <?php
 session_start();
 include 'db.php';
+include 'csrf_protection.php'; // ✅ Dodane
+
+// ✅ Sprawdzenie CSRF dla POST requestów
+checkCSRFOrDie();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $pesel = $_POST["pesel"];
@@ -43,14 +47,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 <h2>Logowanie</h2>
 <form method="POST">
+    <?= getCSRFInput() ?> <!-- ✅ Token CSRF -->
     <input type="text" name="pesel" placeholder="PESEL" required><br>
     <input type="password" name="password" placeholder="Hasło" required><br>
     <button type="submit">Zaloguj się</button>
 </form>
 
-
 <?php if (!empty($error)) echo "<p style='color:red;'>$error</p>"; ?>
-
 
 <p>Nie masz jeszcze konta? <a href="register.php"><button>Zarejestruj się</button></a></p>
 

@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'db.php';
+include 'csrf_protection.php'; // ✅ Dodane
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -9,6 +10,9 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 $now = date("Y-m-d H:i:s");
+
+// ✅ Sprawdzenie CSRF dla POST requestów
+checkCSRFOrDie();
 
 // NAPRAWKA 1: Prepared statement dla pobrania aktywnych wyborów
 $stmt = $conn->prepare("SELECT * FROM elections WHERE start_time <= ? AND end_time >= ?");
@@ -108,6 +112,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <h3>Wybierz wybory:</h3>
     <form method="POST" class="vote-form">
+        <?= getCSRFInput() ?> <!-- ✅ Token CSRF -->
         <select name="election_id" required>
             <option value="">-- wybierz wybory --</option>
             <?php 

@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'db.php';
+include 'csrf_protection.php'; // ✅ Dodane
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -10,6 +11,9 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $success = '';
 $error = '';
+
+// ✅ Sprawdzenie CSRF dla POST requestów
+checkCSRFOrDie();
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $current = $_POST['current_password'];
@@ -45,6 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <div class="container">
     <h2>Zmień hasło</h2>
     <form method="POST">
+        <?= getCSRFInput() ?> <!-- ✅ Token CSRF -->
         <label>Aktualne hasło:</label>
         <input type="password" name="current_password" required>
 
