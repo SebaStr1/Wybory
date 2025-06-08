@@ -1,20 +1,24 @@
 <?php
-ob_start(); // Buforowanie output
-session_start();
 /**
  * Prosty system ochrony CSRF
  * Włącz ten plik w formularzach, które wymagają ochrony
  */
 
 /**
+ * Bezpiecznie rozpoczyna sesję tylko jeśli nie istnieje
+ */
+function ensureSession() {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+}
+
+/**
  * Generuje token CSRF i zapisuje go w sesji
  * @return string Token CSRF
  */
 function generateCSRFToken() {
-    // ✅ NAPRAWKA: Sprawdź czy sesja już istnieje
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
+    ensureSession();
     
     $token = bin2hex(random_bytes(32));
     $_SESSION['csrf_token'] = $token;
@@ -29,10 +33,7 @@ function generateCSRFToken() {
  * @return bool True jeśli token jest prawidłowy
  */
 function verifyCSRFToken($token) {
-    // ✅ NAPRAWKA: Sprawdź czy sesja już istnieje
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
+    ensureSession();
     
     // Sprawdź czy token istnieje w sesji
     if (!isset($_SESSION['csrf_token']) || !isset($_SESSION['csrf_token_time'])) {
@@ -68,15 +69,10 @@ function getCSRFInput() {
 
 /**
  * Sprawdza token CSRF z POST i kończy skrypt jeśli nieprawidłowy
- * ✅ NAPRAWKA: Nie wywołuje session_start() jeśli nie ma POST
+ * ✅ NAPRAWKA: Nie wywołuje session_start() - zakłada że sesja już istnieje
  */
 function checkCSRFOrDie() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // Sprawdź czy sesja już istnieje przed jej rozpoczęciem
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        
         $token = $_POST['csrf_token'] ?? '';
         
         if (!verifyCSRFToken($token)) {

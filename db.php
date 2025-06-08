@@ -1,4 +1,6 @@
 <?php
+// Wyłącz Notice dla session_start
+error_reporting(E_ALL & ~E_NOTICE);
 $host = 'mysql'; // <- nazwa usługi z docker-compose.yml
 $user = 'user';
 $pass = 'password';
@@ -16,7 +18,7 @@ try {
     
     // Debug output tylko w trybie deweloperskim
     if (defined('DEBUG_MODE') && DEBUG_MODE === true) {
-        echo "Połączenie działa!";
+       // echo "Połączenie działa!";
     }
     
 } catch (Exception $e) {

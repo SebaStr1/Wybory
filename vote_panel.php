@@ -1,7 +1,7 @@
 <?php
 session_start();
 include 'db.php';
-include 'csrf_protection.php'; // ✅ Dodane
+include 'csrf_protection.php'; //
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
