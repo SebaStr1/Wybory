@@ -2,21 +2,16 @@
 /**
  * Kompleksowa konfiguracja nagłówków bezpieczeństwa
  */
-
 function setSecurityHeaders() {
     // Zapobiega atakom clickjacking
     header("X-Frame-Options: DENY");
-    
     // Zapobiega sniffowaniu typu MIME
     header("X-Content-Type-Options: nosniff");
-    
     // Włącza ochronę XSS w przeglądarkach
     header("X-XSS-Protection: 1; mode=block");
-    
     // Strict Transport Security (tylko HTTPS)
     // Włącz to tylko jeśli używasz HTTPS w produkcji
-    // header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
-    
+    // header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload"); 
     // Content Security Policy - restrykcyjne ale funkcjonalne
     $csp = "default-src 'self'; " .
            "script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; " .
@@ -26,13 +21,10 @@ function setSecurityHeaders() {
            "connect-src 'self'; " .
            "frame-ancestors 'none'; " .
            "base-uri 'self'; " .
-           "form-action 'self';";
-    
+           "form-action 'self';"; 
     header("Content-Security-Policy: " . $csp);
-    
     // Polityka Referrer - ogranicza wyciek informacji
     header("Referrer-Policy: strict-origin-when-cross-origin");
-    
     // Polityka Uprawnień (Feature Policy) - wyłącza niepotrzebne funkcje
     $permissions = "camera=(), " .
                   "microphone=(), " .
@@ -43,13 +35,10 @@ function setSecurityHeaders() {
                   "magnetometer=(), " .
                   "gyroscope=(), " .
                   "accelerometer=()";
-    
     header("Permissions-Policy: " . $permissions);
-    
     // Zapobiega ujawnianiu informacji
     header("Server: WebServer");
     header("X-Powered-By: ");
-    
     // Kontrola cache dla wrażliwych stron
     if (session_status() === PHP_SESSION_ACTIVE && isset($_SESSION['user_id'])) {
         header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
@@ -57,7 +46,6 @@ function setSecurityHeaders() {
         header("Expires: Sat, 01 Jan 2000 00:00:00 GMT");
     }
 }
-
 /**
  * Ustawia nagłówki bezpieczeństwa specjalnie dla endpointów API
  */
@@ -66,31 +54,25 @@ function setAPISecurityHeaders() {
     header("X-Content-Type-Options: nosniff");
     header("X-Frame-Options: DENY");
     header("X-XSS-Protection: 1; mode=block");
-    
     // CSP specyficzne dla API
     header("Content-Security-Policy: default-src 'none'; frame-ancestors 'none';");
-    
     // Brak cache dla odpowiedzi API zawierających wrażliwe dane
     header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
     header("Pragma: no-cache");
-    
     // Usuwa informacje o serwerze
     header("Server: API");
     header("X-Powered-By: ");
 }
-
 /**
  * Ustawia nagłówki bezpieczeństwa dla stron logowania/rejestracji
  */
 function setAuthPageHeaders() {
-    setSecurityHeaders();
-    
+    setSecurityHeaders();  
     // Dodatkowe bezpieczeństwo dla stron uwierzytelniania
     header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
     header("Pragma: no-cache");
     header("Expires: Sat, 01 Jan 2000 00:00:00 GMT");
 }
-
 /**
  * Nagłówki bezpieczeństwa dla stron publicznych (index.php)
  */
@@ -114,32 +96,24 @@ function setPublicPageHeaders() {
     // Pozwala na cache dla zawartości publicznej
     header("Cache-Control: public, max-age=300");
 }
-
 // Automatycznie ustawia nagłówki na podstawie bieżącego skryptu
 function autoSetSecurityHeaders() {
-    $script = basename($_SERVER['SCRIPT_NAME']);
-    
+    $script = basename($_SERVER['SCRIPT_NAME']);   
     switch ($script) {
         case 'results_api.php':
             setAPISecurityHeaders();
-            break;
-            
+            break;   
         case 'login.php':
         case 'register.php':
             setAuthPageHeaders();
-            break;
-            
+            break;           
         case 'index.php':
             setPublicPageHeaders();
-            break;
-            
+            break;           
         default:
             // Dla wszystkich innych stron (dashboard, admin, itp.)
             setSecurityHeaders();
             break;
     }
 }
-
-// Wywołaj tę funkcję na początku każdej strony, lub użyj autoSetSecurityHeaders()
-// autoSetSecurityHeaders();
 ?>

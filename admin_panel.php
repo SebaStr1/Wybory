@@ -1,26 +1,23 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id']) || !$_SESSION['is_admin']) {
-    header("Location: login.php");
-    exit;
-}
+    if (!isset($_SESSION['user_id']) || !$_SESSION['is_admin']) {
+        header("Location: login.php");
+        exit;
+    }
 include 'db.php';
 include 'csrf_protection.php';
-
 // Debug informacje (można usunąć po naprawie)
-error_log("POST data: " . print_r($_POST, true));
-error_log("Session CSRF token: " . ($_SESSION['csrf_token'] ?? 'BRAK'));
-error_log("POST CSRF token: " . ($_POST['csrf_token'] ?? 'BRAK'));
-
+    error_log("POST data: " . print_r($_POST, true));
+    error_log("Session CSRF token: " . ($_SESSION['csrf_token'] ?? 'BRAK'));
+    error_log("POST CSRF token: " . ($_POST['csrf_token'] ?? 'BRAK'));
 // ✅ Sprawdzenie CSRF dla wszystkich POST requestów
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!isset($_POST['csrf_token']) || !verifyCSRFToken($_POST['csrf_token'])) {
-        error_log("CSRF verification failed in admin_panel.php");
-        http_response_code(403);
-        die('Błąd bezpieczeństwa: Nieprawidłowy token CSRF. <a href="admin_panel.php">Odśwież stronę</a> i spróbuj ponownie.');
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (!isset($_POST['csrf_token']) || !verifyCSRFToken($_POST['csrf_token'])) {
+            error_log("CSRF verification failed in admin_panel.php");
+            http_response_code(403);
+            die('Błąd bezpieczeństwa: Nieprawidłowy token CSRF. <a href="admin_panel.php">Odśwież stronę</a> i spróbuj ponownie.');
+        }
     }
-}
-
 // Dodawanie nowych wyborów
 if (isset($_POST['create_election'])) {
     $name = trim($_POST['election_name']);
@@ -43,7 +40,6 @@ if (isset($_POST['create_election'])) {
         $stmt->close();
     }
 }
-
 // Dodawanie nowego kandydata
 if (isset($_POST['add_candidate'])) {
     $election_id = (int)$_POST['election_id'];
@@ -75,10 +71,8 @@ if (isset($_POST['add_candidate'])) {
         $check_stmt->close();
     }
 }
-
 $elections = $conn->query("SELECT * FROM elections ORDER BY id DESC");
 ?>
-
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -112,11 +106,9 @@ $elections = $conn->query("SELECT * FROM elections ORDER BY id DESC");
     </style>
 </head>
 <body>
-
 <div class="container">
     <h2>Panel Admina</h2>
     <a href="logout.php" class="logout-link">Wyloguj się</a>
-
     <?php if (isset($error)): ?>
         <div class="message error"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
@@ -124,7 +116,6 @@ $elections = $conn->query("SELECT * FROM elections ORDER BY id DESC");
     <?php if (isset($success)): ?>
         <div class="message success"><?= htmlspecialchars($success) ?></div>
     <?php endif; ?>
-
     <!-- Debug informacje (usuń w produkcji) -->
     <div class="debug-info">
         <strong>Debug:</strong><br>
@@ -133,45 +124,36 @@ $elections = $conn->query("SELECT * FROM elections ORDER BY id DESC");
         User ID: <?= $_SESSION['user_id'] ?? 'BRAK' ?><br>
         Is Admin: <?= $_SESSION['is_admin'] ? 'TAK' : 'NIE' ?>
     </div>
-
     <h3>Dodaj nowe wybory</h3>
     <form method="POST">
         <?= getCSRFInput() ?>
         <label>Nazwa wyborów:</label>
         <input type="text" name="election_name" required maxlength="255">
-
         <label>Data rozpoczęcia:</label>
         <input type="datetime-local" name="start_time" required>
-
         <label>Data zakończenia:</label>
         <input type="datetime-local" name="end_time" required>
-
         <button type="submit" name="create_election">Utwórz wybory</button>
     </form>
-
     <h3>Dodaj kandydata</h3>
-    <form method="POST">
-        <?= getCSRFInput() ?>
-        <label>Wybory:</label>
-        <select name="election_id" required>
-            <option value="">-- wybierz wybory --</option>
-            <?php
-            $res = $conn->query("SELECT * FROM elections ORDER BY id DESC");
-            while ($row = $res->fetch_assoc()) {
-                echo "<option value='{$row['id']}'>" . htmlspecialchars($row['name']) . "</option>";
-            }
-            ?>
-        </select>
-
-        <label>Imię i nazwisko kandydata:</label>
-        <input type="text" name="candidate_name" required maxlength="255">
-
-        <label>Opis kandydata:</label>
-        <textarea name="candidate_description" required maxlength="1000" rows="4"></textarea>
-
-        <button type="submit" name="add_candidate">Dodaj kandydata</button>
-    </form>
-
+        <form method="POST">
+            <?= getCSRFInput() ?>
+            <label>Wybory:</label>
+            <select name="election_id" required>
+                <option value="">-- wybierz wybory --</option>
+                <?php
+                $res = $conn->query("SELECT * FROM elections ORDER BY id DESC");
+                while ($row = $res->fetch_assoc()) {
+                    echo "<option value='{$row['id']}'>" . htmlspecialchars($row['name']) . "</option>";
+                }
+                ?>
+            </select>
+            <label>Imię i nazwisko kandydata:</label>
+            <input type="text" name="candidate_name" required maxlength="255">
+            <label>Opis kandydata:</label>
+            <textarea name="candidate_description" required maxlength="1000" rows="4"></textarea>
+            <button type="submit" name="add_candidate">Dodaj kandydata</button>
+        </form>
     <h3>Lista wyborów</h3>
     <?php if ($elections && $elections->num_rows > 0): ?>
         <?php while ($row = $elections->fetch_assoc()): ?>
@@ -184,6 +166,5 @@ $elections = $conn->query("SELECT * FROM elections ORDER BY id DESC");
         <p>Brak wyborów w systemie.</p>
     <?php endif; ?>
 </div>
-
 </body>
 </html>
