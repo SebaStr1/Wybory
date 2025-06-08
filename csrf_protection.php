@@ -1,4 +1,6 @@
 <?php
+ob_start(); // Buforowanie output
+session_start();
 /**
  * Prosty system ochrony CSRF
  * Włącz ten plik w formularzach, które wymagają ochrony
@@ -9,7 +11,8 @@
  * @return string Token CSRF
  */
 function generateCSRFToken() {
-    if (session_status() == PHP_SESSION_NONE) {
+    // ✅ NAPRAWKA: Sprawdź czy sesja już istnieje
+    if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
     
@@ -26,7 +29,8 @@ function generateCSRFToken() {
  * @return bool True jeśli token jest prawidłowy
  */
 function verifyCSRFToken($token) {
-    if (session_status() == PHP_SESSION_NONE) {
+    // ✅ NAPRAWKA: Sprawdź czy sesja już istnieje
+    if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
     
@@ -64,9 +68,15 @@ function getCSRFInput() {
 
 /**
  * Sprawdza token CSRF z POST i kończy skrypt jeśli nieprawidłowy
+ * ✅ NAPRAWKA: Nie wywołuje session_start() jeśli nie ma POST
  */
 function checkCSRFOrDie() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Sprawdź czy sesja już istnieje przed jej rozpoczęciem
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
         $token = $_POST['csrf_token'] ?? '';
         
         if (!verifyCSRFToken($token)) {

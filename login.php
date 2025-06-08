@@ -1,7 +1,11 @@
 <?php
+// ✅ NAJPIERW session_start()
 session_start();
+
+// ✅ POTEM includy
 include 'db.php';
-include 'csrf_protection.php'; // ✅ Dodane
+include 'csrf_protection.php';
+
 
 // ✅ Sprawdzenie CSRF dla POST requestów
 checkCSRFOrDie();
