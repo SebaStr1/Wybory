@@ -1,7 +1,15 @@
 <?php
+// ✅ NAJPIERW session_start() - zanim jakiekolwiek output
+session_start();
+
+// ✅ POTEM nagłówki bezpieczeństwa
+include 'security_headers.php';
+setAuthPageHeaders();
+
+// ✅ POTEM includy
 include 'db.php';
 include 'csrf_protection.php';
-include 'password_security.php'; // ✅ Nowy system bezpieczeństwa haseł
+include 'password_security.php';
 
 function isValidPESEL($pesel) {
     if (!preg_match('/^[0-9]{11}$/', $pesel)) {
@@ -16,10 +24,13 @@ function isValidPESEL($pesel) {
 
     return $checkDigit == intval($pesel[10]);
 }
+
 $errors = [];
 $success = '';
+
 // Sprawdzenie CSRF dla POST requestów
 checkCSRFOrDie();
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = trim($_POST["name"]);
     $surname = trim($_POST["surname"]);
@@ -27,40 +38,49 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = trim($_POST["email"]);
     $password = $_POST["password"];
     $confirm_password = $_POST["confirm_password"];   
+    
     // Walidacja podstawowych danych
     if (empty($name)) {
         $errors[] = "Imię jest wymagane";
     }  
+    
     if (empty($surname)) {
         $errors[] = "Nazwisko jest wymagane";
     }
+    
     if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors[] = "Prawidłowy adres email jest wymagany";
     }
+    
     // Walidacja PESEL
     if (!isValidPESEL($pesel)) {
         $errors[] = "Nieprawidłowy numer PESEL";
     }
+    
     // ✅ WALIDACJA SIŁY HASŁA
     $passwordValidation = PasswordSecurity::validatePassword($password);
     if (!$passwordValidation['valid']) {
         $errors = array_merge($errors, $passwordValidation['errors']);
     }
+    
     // Sprawdzenie potwierdzenia hasła
     if ($password !== $confirm_password) {
         $errors[] = "Hasła nie są identyczne";
     }
+    
     // Sprawdzenie czy użytkownik już istnieje
     if (empty($errors)) {
         $stmt = $conn->prepare("SELECT id FROM users WHERE pesel = ? OR email = ?");
         $stmt->bind_param("ss", $pesel, $email);
         $stmt->execute();
         $stmt->store_result();
+        
         if ($stmt->num_rows > 0) {
             $errors[] = "Użytkownik z tym PESEL lub adresem email już istnieje";
         }
         $stmt->close();
     }
+    
     // Jeśli brak błędów, wykonaj rejestrację
     if (empty($errors)) {
         // ✅ Bezpieczne hashowanie hasła

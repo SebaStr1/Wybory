@@ -1,16 +1,23 @@
 <?php
 /**
  * Prosty system ochrony CSRF
- * Włącz ten plik w formularzach, które wymagają ochrony
+ * ✅ NAPRAWIONE: Lepsze zarządzanie sesjami
  */
 
 /**
  * Bezpiecznie rozpoczyna sesję tylko jeśli nie istnieje
+ * ✅ NAPRAWKA: Dodano sprawdzenie czy nagłówki już wysłane
  */
 function ensureSession() {
     if (session_status() === PHP_SESSION_NONE) {
+        // Sprawdź czy nagłówki już wysłane
+        if (headers_sent($filename, $line)) {
+            error_log("Cannot start session - headers already sent in $filename:$line");
+            return false;
+        }
         session_start();
     }
+    return true;
 }
 
 /**
@@ -18,7 +25,9 @@ function ensureSession() {
  * @return string Token CSRF
  */
 function generateCSRFToken() {
-    ensureSession();
+    if (!ensureSession()) {
+        return false;
+    }
     
     $token = bin2hex(random_bytes(32));
     $_SESSION['csrf_token'] = $token;
@@ -33,7 +42,9 @@ function generateCSRFToken() {
  * @return bool True jeśli token jest prawidłowy
  */
 function verifyCSRFToken($token) {
-    ensureSession();
+    if (!ensureSession()) {
+        return false;
+    }
     
     // Sprawdź czy token istnieje w sesji
     if (!isset($_SESSION['csrf_token']) || !isset($_SESSION['csrf_token_time'])) {
@@ -64,12 +75,15 @@ function verifyCSRFToken($token) {
  */
 function getCSRFInput() {
     $token = generateCSRFToken();
+    if (!$token) {
+        return '<!-- CSRF token error -->';
+    }
     return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($token, ENT_QUOTES, 'UTF-8') . '">';
 }
 
 /**
  * Sprawdza token CSRF z POST i kończy skrypt jeśli nieprawidłowy
- * ✅ NAPRAWKA: Nie wywołuje session_start() - zakłada że sesja już istnieje
+ * ✅ NAPRAWKA: Zakłada że sesja już istnieje - nie wywołuje session_start()
  */
 function checkCSRFOrDie() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
