@@ -40,7 +40,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     // Hash nowego hasła używając zaawansowanego algorytmu
                     $new_hashed = PasswordSecurity::hashPassword($new);
                     
-                    $update = $conn->prepare("UPDATE users SET password_hash = ?, password_changed_at = NOW() WHERE id = ?");
+                    // ✅ NAPRAWKA: Usuń nieistniejącą kolumnę password_changed_at
+                    $update = $conn->prepare("UPDATE users SET password_hash = ? WHERE id = ?");
                     $update->bind_param("si", $new_hashed, $user_id);
                     if ($update->execute()) {
                         $success = "Hasło zostało pomyślnie zmienione. Siła hasła: " . 
