@@ -11,7 +11,6 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -81,22 +80,23 @@ CREATE TABLE `users` (
   `pesel` char(11) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   `password_hash` varchar(255) DEFAULT NULL,
-  `is_admin` tinyint(1) DEFAULT 0
+  `is_admin` tinyint(1) DEFAULT 0,
+  `admin_username` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `surname`, `pesel`, `email`, `password_hash`, `is_admin`) VALUES
-(1, 'Adam ', 'Nowak', '56080565738', 'adam.nowak2@poczta.pl', '$2y$10$y5QyKnsfHKRq4jZCXTZDWeCBEXKB7HVOeiXOrciWwt6VzlHSzwE/O', 0),
-(2, 'admin', 'admin', 'admin', 'admin@poczta.pl', '$2y$10$FZ9ilzUqq4NzkdnedL3v1.85CeRYb2JgOWyILdJ1Pagr6MqDTxoNm', 1),
-(3, 'Adam ', 'Nowak', '76022517516', 'adam.nowak2@poczta.pl', '$2y$10$AZO3FHii.trpIlMvw/FzXOI2RW7TXnXqbEbegWNjl5RBbQ140GXny', 0),
-(4, 'Adam ', 'Nowak', '76022517512', 'adam.nowak2@poczta.pl', '$2y$10$LeDKAAYtQ54D0DYwAsghEeiwSUzd9isMtu.bK9oHCQhiOzHMpIBmG', 0),
-(5, 'Adam ', 'Nowak', '78021642297', 'adam.nowak2@poczta.pl', '$2y$10$2OFyIjRfMsInJ8BcAoab.uaaBI5890gAnQ3.OEkg/zD0iOlD5L/mu', 0),
-(6, 'Adam ', 'Nowak', '88122727218', 'adam.nowak2@poczta.pl', '$2y$10$aVXw1MXGC/jb1uoZ7V94KuBbkjCpD46Bo9f22sZo.w9g8BlOVnYJi', 0),
-(7, 'Adam ', 'Nowak', '89030744171', 'adam.nowak2@poczta.pl', '$2y$10$..tAoyRsaM6SRmG7iCTuzOH/irhjWJrauiubZ.GpKL9qF17LrlS4O', 0),
-(8, 'Adam ', 'Nowak', '50102681898', 'adam.nowak2@poczta.pl', '$2y$10$CM8GSTZW39vFJA/a/Us/O.u4dhUp2.M6bQAsK.fGpzthozpdECrwa', 0);
+INSERT INTO `users` (`id`, `name`, `surname`, `pesel`, `email`, `password_hash`, `is_admin`, `admin_username`) VALUES
+(1, 'Adam ', 'Nowak', '56080565738', 'adam.nowak2@poczta.pl', '$2y$10$y5QyKnsfHKRq4jZCXTZDWeCBEXKB7HVOeiXOrciWwt6VzlHSzwE/O', 0, NULL),
+(2, 'admin', 'admin', '12345678901', 'admin@poczta.pl', '$2y$10$FZ9ilzUqq4NzkdnedL3v1.85CeRYb2JgOWyILdJ1Pagr6MqDTxoNm', 1, 'admin'),
+(3, 'Adam ', 'Nowak', '76022517516', 'adam.nowak2@poczta.pl', '$2y$10$AZO3FHii.trpIlMvw/FzXOI2RW7TXnXqbEbegWNjl5RBbQ140GXny', 0, NULL),
+(4, 'Adam ', 'Nowak', '76022517512', 'adam.nowak2@poczta.pl', '$2y$10$LeDKAAYtQ54D0DYwAsghEeiwSUzd9isMtu.bK9oHCQhiOzHMpIBmG', 0, NULL),
+(5, 'Adam ', 'Nowak', '78021642297', 'adam.nowak2@poczta.pl', '$2y$10$2OFyIjRfMsInJ8BcAoab.uaaBI5890gAnQ3.OEkg/zD0iOlD5L/mu', 0, NULL),
+(6, 'Adam ', 'Nowak', '88122727218', 'adam.nowak2@poczta.pl', '$2y$10$aVXw1MXGC/jb1uoZ7V94KuBbkjCpD46Bo9f22sZo.w9g8BlOVnYJi', 0, NULL),
+(7, 'Adam ', 'Nowak', '89030744171', 'adam.nowak2@poczta.pl', '$2y$10$..tAoyRsaM6SRmG7iCTuzOH/irhjWJrauiubZ.GpKL9qF17LrlS4O', 0, NULL),
+(8, 'Adam ', 'Nowak', '50102681898', 'adam.nowak2@poczta.pl', '$2y$10$CM8GSTZW39vFJA/a/Us/O.u4dhUp2.M6bQAsK.fGpzthozpdECrwa', 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -147,7 +147,8 @@ ALTER TABLE `elections`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `pesel` (`pesel`);
+  ADD UNIQUE KEY `pesel` (`pesel`),
+  ADD UNIQUE KEY `admin_username` (`admin_username`);
 
 --
 -- Indeksy dla tabeli `vote_tokens`
